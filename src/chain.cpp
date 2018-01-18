@@ -84,7 +84,7 @@ void Chain::buildChain(const boost::shared_ptr<const urdf::Link>& root, const ro
 bool Chain::addToChain(const boost::shared_ptr<const urdf::Link>& urdf_link) {
   // q_index of joint matches current number of actuated joints
   // q_index parameter is only used, if joint is actually actuated
-  boost::shared_ptr<Joint> joint = urdf_loader::toJoint(urdf_link->parent_joint, getNumActuatedJoints());
+  std::shared_ptr<Joint> joint = urdf_loader::toJoint(urdf_link->parent_joint, getNumActuatedJoints());
   if (joint->isActuated()) {
     num_actuated_joints_++;
   }

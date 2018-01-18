@@ -3,8 +3,8 @@
 namespace ad_kinematics {
 namespace urdf_loader {
 
-boost::shared_ptr<Joint> toJoint(const boost::shared_ptr<const urdf::Joint>& urdf_joint, int q_index) {
-  boost::shared_ptr<Joint> joint;
+std::shared_ptr<Joint> toJoint(const boost::shared_ptr<const urdf::Joint>& urdf_joint, int q_index) {
+  std::shared_ptr<Joint> joint;
   Transform<double> parent_transform = toTransform(urdf_joint->parent_to_joint_origin_transform);
   switch (urdf_joint->type) {
     case urdf::Joint::FIXED:
