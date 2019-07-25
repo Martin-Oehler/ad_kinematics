@@ -39,7 +39,7 @@ template<typename T> struct Transform {
 
   template<typename T2>
   Transform<T2> cast() const {
-    return Transform<T2>(rotation.cast<T2>(), translation.cast<T2>());
+    return Transform<T2>(rotation.template cast<T2>(), translation.template cast<T2>());
   }
 
   Affine3<T> toAffine() const {
@@ -61,8 +61,8 @@ typedef Transform<double> Transformd;
 
 class Joint {
 public:
-  Joint(std::string name, const Eigen::Vector3d& origin, const Eigen::Vector3d& axis=Eigen::Vector3d::Zero(), int q_index=-1, double upper_limit=0.0, double lower_limit=0.0)
-    : name_(name), origin_(origin), axis_(axis), q_index_(q_index), upper_limit_(upper_limit), lower_limit_(lower_limit) {}
+  Joint(std::string name, const Eigen::Vector3d& origin, const Eigen::Vector3d& axis=Eigen::Vector3d::Zero(), int q_index=-1, double upper_limit=0.0, double lower_limit=0.0);
+  virtual ~Joint();
 
   template<typename T> Transform<T> pose(const std::vector<T>& q) const {
     if (q_index_ != -1) {
@@ -76,29 +76,17 @@ public:
 
   virtual bool isActuated() const = 0;
 
-  double getUpperLimit() const {
-    return upper_limit_;
-  }
+  double getUpperLimit() const;
 
-  double getLowerLimit() const {
-    return lower_limit_;
-  }
+  double getLowerLimit() const;
 
-  std::string getName() const {
-    return name_;
-  }
+  std::string getName() const;
 
-  Eigen::Vector3d getOrigin() const {
-    return origin_;
-  }
+  Eigen::Vector3d getOrigin() const;
 
-  Eigen::Vector3d getAxis() const {
-    return axis_;
-  }
+  Eigen::Vector3d getAxis() const;
 
-  int getQIndex() const {
-    return q_index_;
-  }
+  int getQIndex() const;
 
 protected:
   std::string name_;
@@ -115,7 +103,7 @@ class FixedJoint : public Joint {
 public:
   FixedJoint(std::string name, const Eigen::Vector3d& origin);
 
-  template<typename T> Transform<T> pose(const T& q) const {
+  template<typename T> Transform<T> pose(const T& /*q*/) const {
     return Transform<T>();
   }
 

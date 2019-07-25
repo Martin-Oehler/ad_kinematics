@@ -13,7 +13,7 @@ namespace urdf_loader {
   Eigen::Quaterniond toRotation(const urdf::Rotation& r);
   Eigen::Vector3d toTranslation(const urdf::Vector3& v);
 
-  std::shared_ptr<Joint> toJoint(const boost::shared_ptr<const urdf::Joint>& urdf_joint, int q_index=-1);
+  std::shared_ptr<Joint> toJoint(const urdf::JointConstSharedPtr& urdf_joint, int q_index=-1);
 }
 }
 

@@ -47,20 +47,20 @@ void Chain::init(const urdf::ModelInterfaceSharedPtr &urdf, const moveit::core::
   buildChain(urdf->getRoot(), joint_group);
 }
 
-void Chain::buildChain(const boost::shared_ptr<const urdf::Link>& root, const robot_model::JointModelGroup* joint_group) {
+void Chain::buildChain(const urdf::LinkConstSharedPtr& root, const robot_model::JointModelGroup* joint_group) {
   ROS_INFO_STREAM("Parsing URDF");
   base_link_name_ = root->name;
   tip_link_name_ = base_link_name_;
   std::vector<const robot_model::LinkModel*> link_models = joint_group->getLinkModels();
 
-  boost::shared_ptr<const urdf::Link> current_link = root;
+  urdf::LinkConstSharedPtr current_link = root;
   for (std::vector<const robot_model::LinkModel*>::iterator it = link_models.begin(); it != link_models.end(); ++it) {
     std::string link_name = (*it)->getName();
 
     bool found = false;
     ROS_INFO_STREAM(current_link->name << ":");
     // TODO replace with 'std::find'
-    for (std::vector<boost::shared_ptr<urdf::Link>>::const_iterator it_childs = current_link->child_links.begin();
+    for (std::vector<urdf::LinkSharedPtr>::const_iterator it_childs = current_link->child_links.begin();
          it_childs != current_link->child_links.end() && !found;
          ++it_childs) {
 
@@ -81,7 +81,7 @@ void Chain::buildChain(const boost::shared_ptr<const urdf::Link>& root, const ro
   ROS_INFO_STREAM("URDF parsing finished.");
 }
 
-bool Chain::addToChain(const boost::shared_ptr<const urdf::Link>& urdf_link) {
+bool Chain::addToChain(const urdf::LinkConstSharedPtr& urdf_link) {
   // q_index of joint matches current number of actuated joints
   // q_index parameter is only used, if joint is actually actuated
   std::shared_ptr<Joint> joint = urdf_loader::toJoint(urdf_link->parent_joint, getNumActuatedJoints());

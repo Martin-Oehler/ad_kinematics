@@ -66,4 +66,33 @@ Transformd Link::getTipTransform() const {
   return tip_transform_;
 }
 
+Joint::Joint(std::string name, const Eigen::Vector3d& origin, const Eigen::Vector3d& axis, int q_index, double upper_limit, double lower_limit)
+  : name_(name), origin_(origin), axis_(axis), q_index_(q_index), upper_limit_(upper_limit), lower_limit_(lower_limit) {}
+
+Joint::~Joint() {}
+
+double Joint::getUpperLimit() const {
+  return upper_limit_;
+}
+
+double Joint::getLowerLimit() const {
+  return lower_limit_;
+}
+
+std::string Joint::getName() const {
+  return name_;
+}
+
+Eigen::Vector3d Joint::getOrigin() const {
+  return origin_;
+}
+
+Eigen::Vector3d Joint::getAxis() const {
+  return axis_;
+}
+
+int Joint::getQIndex() const {
+  return q_index_;
+}
+
 }

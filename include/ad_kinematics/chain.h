@@ -55,8 +55,8 @@ public:
 
 private:
   void init(const urdf::ModelInterfaceSharedPtr &urdf, const robot_model::JointModelGroup* joint_group);
-  void buildChain(const boost::shared_ptr<const urdf::Link>& root, const robot_model::JointModelGroup* joint_group);
-  bool addToChain(const boost::shared_ptr<const urdf::Link>& urdf_link);
+  void buildChain(const urdf::LinkConstSharedPtr& root, const robot_model::JointModelGroup* joint_group);
+  bool addToChain(const urdf::LinkConstSharedPtr& urdf_link);
   std::vector<Link> chain_;
   unsigned int num_actuated_joints_;
   std::string base_link_name_;
