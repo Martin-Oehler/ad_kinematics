@@ -145,7 +145,7 @@ template <typename T> Transform<T> Joint::pose(const T &q) const {
 
 class Link {
 public:
-  Link(std::string name, const Transformd& tip_transform, const std::shared_ptr<Joint>& joint);
+  Link(std::string name, const Transformd& tip_transform, const std::shared_ptr<Joint>& joint, const std::shared_ptr<Link>& parent_link=nullptr);
 
   template<typename T> Transform<T> pose(const T& q) const {
     return parent_joint_->pose(q) * tip_transform_.cast<T>();
@@ -157,6 +157,7 @@ public:
 
   //Transform<double> pose(double q) const;
   std::shared_ptr<Joint> getParentJoint() const;
+  std::shared_ptr<Link> getParentLink() const;
   std::string getName() const;
   Transformd getTipTransform() const;
 
@@ -164,6 +165,7 @@ private:
   std::string name_;
   Transformd tip_transform_;
   std::shared_ptr<Joint> parent_joint_;
+  std::shared_ptr<Link> parent_link_;
 };
 
 geometry_msgs::Pose transformToMsg(const Transformd& transform);

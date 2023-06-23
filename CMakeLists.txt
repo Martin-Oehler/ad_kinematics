@@ -119,12 +119,14 @@ set(HEADERS
   include/${PROJECT_NAME}/transforms.h
   include/${PROJECT_NAME}/urdf_loader.h
   include/${PROJECT_NAME}/chain.h
+  include/${PROJECT_NAME}/tree.h
 )
 
 set(SOURCES
   src/chain.cpp
   src/transforms.cpp
   src/urdf_loader.cpp
+  src/tree.cpp
 )
 
 ## Specify additional locations of header files

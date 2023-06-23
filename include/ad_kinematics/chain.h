@@ -19,7 +19,7 @@ public:
   template<typename T>
   Transform<T> computeTransform(const std::string& link_name, const std::vector<T>& joint_angles) {
     if (joint_angles.size() != getNumActuatedJoints()) {
-      ROS_ERROR("[Chain::computeTransform] joint_angles size (%lu) doesn't match number of actuacted joints (%u).", joint_angles.size(), getNumActuatedJoints());
+      ROS_ERROR("[Chain::computeTransform] joint_angles size (%lu) doesn't match number of actuated joints (%u).", joint_angles.size(), getNumActuatedJoints());
       return Transform<T>();
     }
 

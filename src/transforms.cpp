@@ -51,11 +51,15 @@ ContinuousJoint::ContinuousJoint(std::string name, const Eigen::Vector3d &origin
   : RevoluteJoint(name, origin, axis, q_index, M_PI, -M_PI) {}
 
 // Link
-Link::Link(std::string name, const Transformd& tip_transform, const std::shared_ptr<Joint>& joint)
-  : name_(name), tip_transform_(joint->pose<double>(0).inverse() * tip_transform), parent_joint_(joint) {}
+Link::Link(std::string name, const Transformd& tip_transform, const std::shared_ptr<Joint>& joint, const std::shared_ptr<Link>& parent_link)
+  : name_(name), tip_transform_(joint->pose<double>(0).inverse() * tip_transform), parent_joint_(joint), parent_link_(parent_link) {}
 
 std::shared_ptr<Joint> Link::getParentJoint() const {
   return parent_joint_;
+}
+
+std::shared_ptr<Link> Link::getParentLink() const {
+  return parent_link_;
 }
 
 std::string Link::getName() const {
