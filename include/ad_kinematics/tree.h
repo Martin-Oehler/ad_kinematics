@@ -48,6 +48,7 @@ public:
   }
   std::vector<int> getJointQIndices(const std::vector<std::string> &joint_names);
   std::string getBaseLinkName() const;
+  std::shared_ptr<Link> getLink(const std::string& link_name) const;
   std::vector<std::string> getJointNames() const;
   std::vector<std::string> getActuatedJointNames() const;
 private:

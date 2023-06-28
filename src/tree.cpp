@@ -69,5 +69,14 @@ std::shared_ptr<Link> Tree::addToTree(const urdf::LinkConstSharedPtr& urdf_link,
 
   return link;
 }
+std::shared_ptr<Link> Tree::getLink(const std::string& link_name) const
+{
+  auto it = links_.find(link_name);
+  if (it == links_.end()) {
+    ROS_ERROR_STREAM("[Tree::computeTransform] Unknown link '" << link_name << "'.");
+    return {};
+  }
+  return it->second;
+}
 
 }
