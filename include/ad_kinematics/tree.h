@@ -26,7 +26,7 @@ public:
 
     // Handle special case: base link
     if (link_name == getBaseLinkName()) {
-      return Transform<T>();
+      return Transform<T>(); // Identity
     }
 
     // Find end link
@@ -36,8 +36,10 @@ public:
       return Transform<T>();
     }
 
-    Transform<T> current_pose; // identity
     std::shared_ptr<Link> current_link = it->second;
+    Transform<T> current_pose = current_link->pose<T>(joint_angles);
+    current_link = current_link->getParentLink();
+
     while (current_link) {
       current_pose = current_link->pose<T>(joint_angles) * current_pose;
       current_link = current_link->getParentLink();
