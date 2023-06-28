@@ -71,7 +71,7 @@ Transformd Link::getTipTransform() const {
 }
 
 Joint::Joint(std::string name, const Eigen::Vector3d& origin, const Eigen::Vector3d& axis, int q_index, double upper_limit, double lower_limit)
-  : name_(name), origin_(origin), axis_(axis), q_index_(q_index), upper_limit_(upper_limit), lower_limit_(lower_limit) {}
+  : name_(name), origin_(origin), axis_(axis), q_index_(q_index), mimic_(false), multiplier_(1.0), offset_(0.0), upper_limit_(upper_limit), lower_limit_(lower_limit) {}
 
 Joint::~Joint() {}
 
@@ -97,6 +97,19 @@ Eigen::Vector3d Joint::getAxis() const {
 
 int Joint::getQIndex() const {
   return q_index_;
+}
+
+void Joint::setMimic(int q_index, double multiplier, double offset)
+{
+  mimic_ = true;
+  q_index_ = q_index;
+  multiplier_ = multiplier;
+  offset_ = offset;
+}
+
+bool Joint::isActive() const
+{
+  return !isActuated() && mimic_;
 }
 
 }

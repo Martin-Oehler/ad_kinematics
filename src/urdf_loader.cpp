@@ -27,6 +27,10 @@ std::shared_ptr<Joint> toJoint(const urdf::JointConstSharedPtr& urdf_joint, int 
     default:
       ROS_ERROR_STREAM_NAMED("CeresIK", "Unknown joint type in urdf.");
   }
+
+  if (urdf_joint->mimic) {
+    joint->setMimic(-1, 1.0, 0.0);
+  }
   return joint;
 }
 

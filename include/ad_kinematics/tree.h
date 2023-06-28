@@ -8,7 +8,7 @@ namespace ad_kinematics {
 class Tree {
 public:
   explicit Tree(const urdf::ModelInterfaceSharedPtr &urdf);
-  unsigned int getNumActuatedJoints();
+  unsigned int getNumActiveJoints();
 
   /**
    * Computes transform from base link to specified link
@@ -19,8 +19,8 @@ public:
    */
   template<typename T>
   Transform<T> computeTransform(const std::string& link_name, const std::vector<T>& joint_angles) {
-    if (joint_angles.size() != getNumActuatedJoints()) {
-      ROS_ERROR("[Tree::computeTransform] joint_angles size (%lu) doesn't match number of actuated joints (%u).", joint_angles.size(), getNumActuatedJoints());
+    if (joint_angles.size() != getNumActiveJoints()) {
+      ROS_ERROR("[Tree::computeTransform] joint_angles size (%lu) doesn't match number of actuated joints (%u).", joint_angles.size(), getNumActiveJoints());
       return Transform<T>();
     }
 
@@ -49,15 +49,19 @@ public:
   std::vector<int> getJointQIndices(const std::vector<std::string> &joint_names);
   std::string getBaseLinkName() const;
   std::shared_ptr<Link> getLink(const std::string& link_name) const;
+  std::shared_ptr<Joint> getJoint(const std::string& joint_name) const;
   std::vector<std::string> getJointNames() const;
   std::vector<std::string> getActuatedJointNames() const;
 private:
   void buildTree(const urdf::LinkConstSharedPtr& link_ptr, const std::shared_ptr<Link>& parent);
   std::shared_ptr<Link> addToTree(const urdf::LinkConstSharedPtr& urdf_link, const std::shared_ptr<Link>& parent);
+  void updateMimicJoints(const urdf::ModelInterfaceSharedPtr& urdf);
 
   std::unordered_map<std::string, std::shared_ptr<Link>> links_;
+  std::unordered_map<std::string, std::shared_ptr<Joint>> joints_;
   std::vector<std::string> joint_names_;
-  std::vector<std::string> actuated_joint_names;
+  std::vector<std::string> active_joint_names_;
+  std::vector<std::string> mimic_joint_names_;
   std::string base_link_name_;
 };
 }

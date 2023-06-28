@@ -74,7 +74,10 @@ public:
 
   template<typename T> Transform<T> pose(const T& q) const;
 
+  void setMimic(int q_index, double multiplier, double offset);
+
   virtual bool isActuated() const = 0;
+  virtual bool isActive() const;
 
   double getUpperLimit() const;
 
@@ -94,6 +97,9 @@ protected:
   Eigen::Vector3d axis_;
 
   int q_index_;
+  bool mimic_;
+  double multiplier_;
+  double offset_;
 
   double upper_limit_;
   double lower_limit_;
@@ -128,14 +134,15 @@ public:
 
 // Workaround, because c++ doesn't allow virtual template functions
 template <typename T> Transform<T> Joint::pose(const T &q) const {
+  T q_scaled = T(multiplier_) * q + T(offset_);
   if (const FixedJoint* joint = dynamic_cast<const FixedJoint*>(this)) {
-    return joint->pose(q);
+    return joint->pose(q_scaled);
   }
   else if (const RevoluteJoint* joint = dynamic_cast<const RevoluteJoint*>(this)) {
-    return joint->pose(q);
+    return joint->pose(q_scaled);
   }
   else if (const ContinuousJoint* joint = dynamic_cast<const ContinuousJoint*>(this)) {
-    return joint->pose(q);
+    return joint->pose(q_scaled);
   }
   else {
     std::cerr << "Dynamic cast failed!" << std::endl;
