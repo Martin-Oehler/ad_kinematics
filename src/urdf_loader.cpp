@@ -6,6 +6,10 @@ namespace urdf_loader {
 std::shared_ptr<Joint> toJoint(const urdf::JointConstSharedPtr& urdf_joint, int q_index) {
   std::shared_ptr<Joint> joint;
   Transform<double> parent_transform = toTransform(urdf_joint->parent_to_joint_origin_transform);
+  bool is_mimic = urdf_joint->mimic != nullptr;
+  if (is_mimic) {
+    q_index = -1;
+  }
   switch (urdf_joint->type) {
     case urdf::Joint::FIXED:
       joint.reset(new FixedJoint(urdf_joint->name, parent_transform.translation));
@@ -28,9 +32,10 @@ std::shared_ptr<Joint> toJoint(const urdf::JointConstSharedPtr& urdf_joint, int 
       ROS_ERROR_STREAM_NAMED("CeresIK", "Unknown joint type in urdf.");
   }
 
-  if (urdf_joint->mimic) {
-    joint->setMimic(-1, 1.0, 0.0);
+  if (is_mimic) {
+    joint->setMimic(urdf_joint->mimic->joint_name, urdf_joint->mimic->multiplier, urdf_joint->mimic->offset);
   }
+
   return joint;
 }
 

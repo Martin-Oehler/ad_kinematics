@@ -51,7 +51,7 @@ public:
   std::shared_ptr<Link> getLink(const std::string& link_name) const;
   std::shared_ptr<Joint> getJoint(const std::string& joint_name) const;
   std::vector<std::string> getJointNames() const;
-  std::vector<std::string> getActuatedJointNames() const;
+  std::vector<std::string> getActiveJointNames() const;
 private:
   void buildTree(const urdf::LinkConstSharedPtr& link_ptr, const std::shared_ptr<Link>& parent);
   std::shared_ptr<Link> addToTree(const urdf::LinkConstSharedPtr& urdf_link, const std::shared_ptr<Link>& parent);

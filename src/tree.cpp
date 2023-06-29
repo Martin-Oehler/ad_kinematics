@@ -23,7 +23,7 @@ std::vector<std::string> Tree::getJointNames() const
 {
   return joint_names_;
 }
-std::vector<std::string> Tree::getActuatedJointNames() const
+std::vector<std::string> Tree::getActiveJointNames() const
 {
   return active_joint_names_;
 }
@@ -87,16 +87,14 @@ std::shared_ptr<Link> Tree::getLink(const std::string& link_name) const
 void Tree::updateMimicJoints(const urdf::ModelInterfaceSharedPtr& urdf)
 {
   for (auto& mimic_name: mimic_joint_names_) {
-    auto urdf_joint = urdf->getJoint(mimic_name);
-    if (!urdf_joint) continue;
-    auto urdf_mimic = urdf_joint->mimic;
-    if (!urdf_mimic) continue;
-    auto joint_mimic = getJoint(urdf_mimic->joint_name);
-    if (!joint_mimic) continue;
     auto joint = getJoint(mimic_name);
     if (!joint) continue;
-    joint->setMimic(joint_mimic->getQIndex(), urdf_mimic->multiplier, urdf_mimic->offset);
-    ROS_INFO_STREAM("Setting joint " << joint->getName() << " as mimic of " << joint_mimic->getName() << "(offset: " << urdf_mimic->offset << ", multiplier: " << urdf_mimic->multiplier);
+    if (!joint->isActuated() || joint->isActive()) continue;
+    auto joint_mimic = getJoint(joint->getMimic()->mimic_joint_name);
+    if (!joint_mimic) continue;
+
+    joint->setQIndex(joint_mimic->getQIndex());
+    ROS_INFO_STREAM("Setting joint " << joint->getName() << " as mimic of " << joint->getMimic()->mimic_joint_name << " (offset: " << joint->getMimic()->offset << ", multiplier: " << joint->getMimic()->multiplier << ", q_index: " << joint->getQIndex() << ")");
   }
 }
 std::shared_ptr<Joint> Tree::getJoint(const std::string& joint_name) const

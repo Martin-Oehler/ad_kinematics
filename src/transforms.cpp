@@ -70,8 +70,8 @@ Transformd Link::getTipTransform() const {
   return tip_transform_;
 }
 
-Joint::Joint(std::string name, const Eigen::Vector3d& origin, const Eigen::Vector3d& axis, int q_index, double upper_limit, double lower_limit)
-  : name_(name), origin_(origin), axis_(axis), q_index_(q_index), mimic_(false), multiplier_(1.0), offset_(0.0), upper_limit_(upper_limit), lower_limit_(lower_limit) {}
+Joint::Joint(const std::string& name, const Eigen::Vector3d& origin, const Eigen::Vector3d& axis, int q_index, double upper_limit, double lower_limit)
+  : name_(name), origin_(origin), axis_(axis), q_index_(q_index), upper_limit_(upper_limit), lower_limit_(lower_limit) {}
 
 Joint::~Joint() {}
 
@@ -99,17 +99,26 @@ int Joint::getQIndex() const {
   return q_index_;
 }
 
-void Joint::setMimic(int q_index, double multiplier, double offset)
+void Joint::setMimic(const std::string& mimic_joint_name, double multiplier, double offset)
 {
-  mimic_ = true;
-  q_index_ = q_index;
-  multiplier_ = multiplier;
-  offset_ = offset;
+  mimic_ = std::make_shared<Mimic>(mimic_joint_name, multiplier, offset);
 }
 
 bool Joint::isActive() const
 {
-  return !isActuated() && mimic_;
+  return isActuated() && !mimic_;
 }
+void Joint::setQIndex(int q_index)
+{
+  q_index_ = q_index;
+}
+std::shared_ptr<Mimic> Joint::getMimic() const
+{
+  return mimic_;
+}
+
+Mimic::Mimic(const std::string& _mimic_joint_name, double _multiplier, double _offset)
+: mimic_joint_name(_mimic_joint_name), multiplier(_multiplier), offset(_offset)
+{}
 
 }

@@ -59,9 +59,17 @@ template <typename T> Vector3<T> operator *(const Transform<T>& lhs, const Vecto
 
 typedef Transform<double> Transformd;
 
+class Mimic {
+public:
+  Mimic(const std::string& _mimic_joint_name, double _multiplier, double _offset);
+  std::string mimic_joint_name;
+  double multiplier;
+  double offset;
+};
+
 class Joint {
 public:
-  Joint(std::string name, const Eigen::Vector3d& origin, const Eigen::Vector3d& axis=Eigen::Vector3d::Zero(), int q_index=-1, double upper_limit=0.0, double lower_limit=0.0);
+  Joint(const std::string& name, const Eigen::Vector3d& origin, const Eigen::Vector3d& axis=Eigen::Vector3d::Zero(), int q_index=-1, double upper_limit=0.0, double lower_limit=0.0);
   virtual ~Joint();
 
   template<typename T> Transform<T> pose(const std::vector<T>& q) const {
@@ -74,7 +82,7 @@ public:
 
   template<typename T> Transform<T> pose(const T& q) const;
 
-  void setMimic(int q_index, double multiplier, double offset);
+  void setMimic(const std::string& mimic_joint_name, double multiplier, double offset);
 
   virtual bool isActuated() const = 0;
   virtual bool isActive() const;
@@ -90,6 +98,9 @@ public:
   Eigen::Vector3d getAxis() const;
 
   int getQIndex() const;
+  void setQIndex(int q_index);
+
+  std::shared_ptr<Mimic> getMimic() const;
 
 protected:
   std::string name_;
@@ -97,9 +108,8 @@ protected:
   Eigen::Vector3d axis_;
 
   int q_index_;
-  bool mimic_;
-  double multiplier_;
-  double offset_;
+  std::shared_ptr<Mimic> mimic_;
+
 
   double upper_limit_;
   double lower_limit_;
@@ -134,7 +144,13 @@ public:
 
 // Workaround, because c++ doesn't allow virtual template functions
 template <typename T> Transform<T> Joint::pose(const T &q) const {
-  T q_scaled = T(multiplier_) * q + T(offset_);
+  T multiplier = T(1.0);
+  T offset = T(0.0);
+  if (mimic_) {
+    multiplier = T(mimic_->multiplier);
+    offset = T(mimic_->offset);
+  }
+  T q_scaled = T(multiplier) * q + T(offset);
   if (const FixedJoint* joint = dynamic_cast<const FixedJoint*>(this)) {
     return joint->pose(q_scaled);
   }
