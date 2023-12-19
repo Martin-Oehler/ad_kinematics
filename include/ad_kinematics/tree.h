@@ -42,11 +42,44 @@ public:
 
   template<typename T>
   Transform<T> computeTransform(const std::shared_ptr<Link>& link, const std::vector<T>& joint_angles) {
-    Transform<T> transform = link->pose<T>(joint_angles);
-    std::shared_ptr<Link> parent = link->getParentLink();
-    if (parent) {
-      return computeTransform<T>(parent, joint_angles) * transform;
+
+    static std::vector<T> cached_joint_angles;
+    static std::map<std::string, bool> dirty_transforms;
+    static std::map<std::string, Transform<T>> transform_cache;
+
+    // Check if a transform is cached
+    bool dirty_transform;
+    auto dirty_transform_it = dirty_transforms.find(link->getName());
+    if (dirty_transform_it == dirty_transforms.end()) {
+      dirty_transforms.emplace(link->getName(), true);
+      dirty_transform = true;
     } else {
+      dirty_transform = dirty_transform_it->second;
+    }
+
+    // Check if the cache fits
+    if (!dirty_transform) {
+      if (joint_angles != cached_joint_angles) {
+        dirty_transform = true;
+        // Dirty transforms
+        for (auto& kv: dirty_transforms) {
+          kv.second = true;
+        }
+      }
+    }
+
+    if (!dirty_transform) {
+      return transform_cache[link->getName()];
+    } else {
+      Transform<T> transform = link->pose<T>(joint_angles);
+      std::shared_ptr<Link> parent = link->getParentLink();
+      if (parent) {
+        transform = computeTransform<T>(parent, joint_angles) * transform;
+      }
+      // Cache transform
+      cached_joint_angles = joint_angles;
+      dirty_transforms[link->getName()] = false;
+      transform_cache[link->getName()] = transform;
       return transform;
     }
   }
