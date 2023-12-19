@@ -5,6 +5,7 @@
 namespace ad_kinematics {
 
 Tree::Tree(const urdf::ModelInterfaceSharedPtr& urdf)
+: disable_transform_cache_(false)
 {
   base_link_name_ = urdf->getRoot()->name;
   buildTree(urdf->getRoot(), nullptr);
@@ -105,6 +106,9 @@ std::shared_ptr<Joint> Tree::getJoint(const std::string& joint_name) const
     return {};
   }
   return it->second;
+}
+void Tree::disableTransformCache() {
+  disable_transform_cache_ = true;
 }
 
 }

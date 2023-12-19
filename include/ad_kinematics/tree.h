@@ -66,13 +66,17 @@ public:
     static std::map<std::string, bool> dirty_transforms;
 
     // Check if a transform is cached
-    bool dirty_transform = getWithDefault(dirty_transforms, link->getName(), true);
-
-    // Check if the cache fits
-    if (!dirty_transform && joint_angles != cached_joint_angles) {
-      // Invalidate cache
+    bool dirty_transform;
+    if (disable_transform_cache_) {
       dirty_transform = true;
-      setAll(dirty_transforms, true);
+    } else {
+      dirty_transform = getWithDefault(dirty_transforms, link->getName(), true);
+      // Check if the cache fits
+      if (!dirty_transform && joint_angles != cached_joint_angles) {
+        // Invalidate cache
+        dirty_transform = true;
+        setAll(dirty_transforms, true);
+      }
     }
 
     if (!dirty_transform) {
@@ -97,6 +101,7 @@ public:
   std::shared_ptr<Joint> getJoint(const std::string& joint_name) const;
   std::vector<std::string> getJointNames() const;
   std::vector<std::string> getActiveJointNames() const;
+  void disableTransformCache();
 private:
   void buildTree(const urdf::LinkConstSharedPtr& link_ptr, const std::shared_ptr<Link>& parent);
   std::shared_ptr<Link> addToTree(const urdf::LinkConstSharedPtr& urdf_link, const std::shared_ptr<Link>& parent);
@@ -108,6 +113,7 @@ private:
   std::vector<std::string> active_joint_names_;
   std::vector<std::string> mimic_joint_names_;
   std::string base_link_name_;
+  bool disable_transform_cache_;
 };
 }
 
