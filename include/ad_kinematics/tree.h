@@ -5,6 +5,25 @@
 #include <unordered_map>
 
 namespace ad_kinematics {
+
+template <typename K, typename V>
+V getWithDefault(std::map<K,V>& m, const K& key, const V& defval ) {
+  typename std::map<K,V>::const_iterator it = m.find(key);
+  if (it == m.end()) {
+    m[key] = defval;
+    return defval;
+  } else {
+    return it->second;
+  }
+}
+
+template <typename K, typename V>
+void setAll(std::map<K,V>& m, const V& val ) {
+  for (auto& kv: m) {
+    kv.second = val;
+  }
+}
+
 class Tree {
 public:
   explicit Tree(const urdf::ModelInterfaceSharedPtr &urdf);
@@ -42,34 +61,22 @@ public:
 
   template<typename T>
   Transform<T> computeTransform(const std::shared_ptr<Link>& link, const std::vector<T>& joint_angles) {
-
     static std::vector<T> cached_joint_angles;
+    static std::map<std::string, Transform<T>> cached_transforms;
     static std::map<std::string, bool> dirty_transforms;
-    static std::map<std::string, Transform<T>> transform_cache;
 
     // Check if a transform is cached
-    bool dirty_transform;
-    auto dirty_transform_it = dirty_transforms.find(link->getName());
-    if (dirty_transform_it == dirty_transforms.end()) {
-      dirty_transforms.emplace(link->getName(), true);
-      dirty_transform = true;
-    } else {
-      dirty_transform = dirty_transform_it->second;
-    }
+    bool dirty_transform = getWithDefault(dirty_transforms, link->getName(), true);
 
     // Check if the cache fits
-    if (!dirty_transform) {
-      if (joint_angles != cached_joint_angles) {
-        dirty_transform = true;
-        // Dirty transforms
-        for (auto& kv: dirty_transforms) {
-          kv.second = true;
-        }
-      }
+    if (!dirty_transform && joint_angles != cached_joint_angles) {
+      // Invalidate cache
+      dirty_transform = true;
+      setAll(dirty_transforms, true);
     }
 
     if (!dirty_transform) {
-      return transform_cache[link->getName()];
+      return cached_transforms[link->getName()];
     } else {
       Transform<T> transform = link->pose<T>(joint_angles);
       std::shared_ptr<Link> parent = link->getParentLink();
@@ -79,7 +86,7 @@ public:
       // Cache transform
       cached_joint_angles = joint_angles;
       dirty_transforms[link->getName()] = false;
-      transform_cache[link->getName()] = transform;
+      cached_transforms[link->getName()] = transform;
       return transform;
     }
   }
