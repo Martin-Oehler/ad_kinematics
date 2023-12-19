@@ -25,6 +25,7 @@ public:
     }
 
     // Handle special case: base link
+    // The base link does not exist explicitly in the tree, therefore, we have to catch it separately
     if (link_name == getBaseLinkName()) {
       return Transform<T>(); // Identity
     }
@@ -36,16 +37,20 @@ public:
       return Transform<T>();
     }
 
-    std::shared_ptr<Link> current_link = it->second;
-    Transform<T> current_pose = current_link->pose<T>(joint_angles);
-    current_link = current_link->getParentLink();
-
-    while (current_link) {
-      current_pose = current_link->pose<T>(joint_angles) * current_pose;
-      current_link = current_link->getParentLink();
-    }
-    return current_pose;
+    return computeTransform(it->second, joint_angles);
   }
+
+  template<typename T>
+  Transform<T> computeTransform(const std::shared_ptr<Link>& link, const std::vector<T>& joint_angles) {
+    Transform<T> transform = link->pose<T>(joint_angles);
+    std::shared_ptr<Link> parent = link->getParentLink();
+    if (parent) {
+      return computeTransform<T>(parent, joint_angles) * transform;
+    } else {
+      return transform;
+    }
+  }
+
   std::vector<int> getJointQIndices(const std::vector<std::string> &joint_names);
   std::string getBaseLinkName() const;
   std::shared_ptr<Link> getLink(const std::string& link_name) const;
